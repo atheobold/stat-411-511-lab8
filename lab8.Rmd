@@ -1,5 +1,5 @@
 ---
-title: "Stratification, Summaries, and Comparisons"
+title: "Stratify, Summarise, and Compare"
 author: "Your Group Names Here!"
 date: "Due: October 29, 2019"
 output: html_document
