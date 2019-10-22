@@ -1,0 +1,238 @@
+---
+title: "Stratification, Summaries, and Comparisons"
+author: "Your Group Names Here!"
+date: "Due: October 29, 2019"
+output: html_document
+---
+
+Today we'll consider measurements of people's full expiratory lung volume 
+collected as part of a study to understand the functional effects of smoking
+and exposure to second-hand smoke. The data from Kahn (2005) are available in 
+the expiration.csv file. The unit of observation is a person. There are 654 rows
+of five variables: age, expiratory lung volume, height, sex, and whether or not
+the person smokes.  
+
+__1. Read in the data and inspect the variables the researchers collected.__   
+
+What units do you believe height is in? 
+How old were the individuals they examined?  
+What units do you believe volume is in?
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(knitr)
+library(broom)
+
+lungs <- read_csv("data/expiration.csv")
+```
+
+</br>
+</br>
+</br>
+
+To start, let's create a summary table of the lung expiratory volume for each 
+smoking status. It's "typical" to display the mean, median, and standard 
+deviations for each group. To do this, we need to carry out the following steps:  
+
+* using the data, create groups of the categorical variable  
+* create summaries for each group 
+
+With `dplyr` it's as easy as that! Let's see how it's done.  
+
+```{r}
+lungs %>% 
+  group_by(smoke) %>% 
+  summarise(mean = mean(volume), 
+            median = median(volume), 
+            sd = sd(volume)
+            ) 
+
+# You could pipe your table into the kable() function to produce a slick HTML table!
+```
+
+</br>
+</br>
+
+__1. What can you tell about the lung expiratory volume from the table?__ 
+__What information is missing that you'd like to know more about?__ 
+
+
+
+
+__2. Create a visualization of the lung expiratory volume by smoking status.__  
+
+```{r}
+
+
+```
+
+__3. Does the relationship you see in the plot above make sense? Why or why not?__
+
+
+
+
+Since a high lung volume is considered healthy, does this mean that smoking 
+can improve health? What might we be ignoring that also impacts lung volume?
+
+
+__4. Create a summary table (like before) of the ages within each smoking group.__   
+Include the minimum, first quantile, median, third quantile, and maximum.  
+
+```{r}
+
+
+```
+
+
+</br>
+</br>
+</br>
+
+It looks like half of the children they collected data on who smoked were young
+teenager, whereas the non-smoker children were largely in their pre-teens. 
+Let's create a new variable named `age_cat`, which contains categorical levels 
+of the age variable. Let's use the following levels for the variable:  
+
+* infant (0-1 year)
+* toddler (2-3 years) 
+* preschooler (4-5 years) 
+* middle childhood (6-11 years) 
+* pre-teen (12-14 years) 
+* teenager (15-19 years) 
+
+I'll start you off and your group can finish the rest.  
+
+```{r}
+lungs <- lungs %>% 
+   mutate(age_cat = case_when(age <= 1 ~ "infant", 
+                              age > 1 & age <= 3 ~ "toddler", 
+                              age > 3 & age <= 5 ~ "preschooler", 
+                              age > 5 & age <= 11 ~ "middle childhood", 
+                              age > 11 & age <= 14 ~ "pre-teen", 
+                              age > 14 ~ "teenager"
+                              # delete this and add additional levels here! 
+                              ))
+```
+
+```{r, eval = FALSE}
+lungs <- lungs %>% 
+  mutate(age_cat = case_when(age <= 1 ~ "infant", 
+                             age > 1 & age <= 3 ~ "toddler", 
+                             age > 3 & age <= 5 ~ "preschooler", 
+                             # delete this and add additional levels here! 
+                             ))
+```
+
+</br>
+</br>
+
+
+__5. Now, create a visualization of the lung expiratory volume by smoking status AND age group.__
+__Change the labels for *every* variable on the plot (x, y, color).__ 
+
+```{r}
+lungs %>% 
+  ggplot(aes(x = smoke, y = volume, fill = age_cat)) + 
+  geom_violin() + 
+  labs(fill = "Age Category")
+
+```
+
+</br>
+</br>
+
+From the legend you can see that there are four strata for age groups in these 
+data. Yet not every age group shows up for each smoking status. 
+
+__6. Explain, in everyday terms, why some of the age strata are missing.__ 
+
+
+
+# Estimation 
+
+Researchers were interested in estimating how different the the lung 
+expiratory volume of smokers and non-smokers is, after accounting for age. 
+
+__7. What analysis approach would you recommend? How would age be included in your model?__
+
+
+
+## Additive Model 
+
+Let's start with an additive ANOVA model. 
+
+```{r}
+# ANOVA model where smoking status 
+smoke_lm <- lm(volume ~ smoke + age_cat, data = lungs)
+
+# tidy() lives in the broom package
+# it creates a tidy table from the output of an lm() or anova() object
+tidy(smoke_lm)
+
+tidy( 
+  anova(smoke_lm)
+  )
+```
+
+
+What age group is the baseline for this model?
+(hint: What level is missing from the output?)
+
+
+
+
+__8. What is the estimated change in lung expiratory volume for a child who is a
+teenager, as compared to a child in the middle of their childhood? Does this 
+make sense?__  
+
+
+
+__9. What is the estimated change in the lung expiratory volume for a smoker as 
+compared to a non-smoker? Does this make sense?__   
+
+
+
+
+__10. In the summary table, the p-value for the adjustment to the mean lung expiratory
+volume for smokers has a large p-value. Does that mean smoker should be removed 
+from the model? Why or why not?__   
+
+
+
+
+## Interactive Model  
+
+Alright, maybe an interactive ANOVA model is a better option. 
+
+```{r}
+# ANOVA model where smoking status 
+interact_lm <- lm(volume ~ smoke*age_cat, data = lungs)
+
+# tidy() lives in the broom package
+# it creates a tidy table from the output of an lm() or anova() object
+tidy(interact_lm)
+
+```
+
+</br>
+</br>
+</br>
+
+
+__11. Using the model output, fill in the table with the estimated expiratory 
+lung volumes for pre-teens who smoke and teenagers who do not smoke.__  
+
+
+| Age | Smoker | Estimated Mean Lung Expiratory Volume |
+|:----------------:|:---:|-----------------------------|
+| toddler          | Yes | 1.883 |  
+| preschooler      | Yes | 2.131 |    
+| middle childhood | Yes | 3.033 |  
+| pre-teen         | Yes |       |  
+| teenager         | Yes | 3.393 |  
+| toddler          | No  | 1.24  |  
+| preschooler      | No  | 1.488 |    
+| middle childhood | No  | 2.39  |  
+| pre-teen         | No  | 3.41  |  
+| teenager         | No  |       |  
+
