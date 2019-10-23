@@ -219,20 +219,9 @@ tidy(interact_lm)
 </br>
 
 
-__11. Using the model output, fill in the table with the estimated expiratory 
-lung volumes for pre-teens who smoke and teenagers who do not smoke.__  
+__11. Using the model output, how does the estimated mean expiratory 
+lung volumes for pre-teens who smoke differ for the interaction model, as 
+compared to the additive model?__ 
 
 
-| Age | Smoker | Estimated Mean Lung Expiratory Volume |
-|:----------------:|:---:|-----------------------------|
-| toddler          | Yes | 1.883 |  
-| preschooler      | Yes | 2.131 |    
-| middle childhood | Yes | 3.033 |  
-| pre-teen         | Yes |       |  
-| teenager         | Yes | 3.393 |  
-| toddler          | No  | 1.24  |  
-| preschooler      | No  | 1.488 |    
-| middle childhood | No  | 2.39  |  
-| pre-teen         | No  | 3.41  |  
-| teenager         | No  |       |  
 
